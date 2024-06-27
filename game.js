@@ -32,22 +32,22 @@ setLegend(
 .00.00..........
 ................` ],
   [ covid, bitmap`
-D4.....4D4....4D
-DD4....DDD...DDD
-.4D4...4D...DD4.
-..4DD4..D4.D4D..
-....DDD.D.DDD...
-.....DD4DD4D....
-4.44.DDDDDDD4.4.
-DDDDDD4D4DDDDDDD
-.4.D4DDDDD4D.4.4
-.....DD4D4DD....
-....4DDDDDDDD...
-....D4.4D..DD4..
-..4DDD..4D.4DD4.
-.DDD4..DD4..4DD.
-D4DD....D....DDD
-4D.....44D....4D`],
+................
+................
+................
+.D4....4D...D4..
+..DD...D4..4D...
+..4D4..DD.4D....
+...D4D.D.4D..4..
+...4.DDDDDD4DDD4
+..DD4D4DD4DD4...
+.4D..DD4DDD.....
+D4...DDDD.DD4...
+....4D.4D4.DD4..
+...4DD.4DD..4D..
+..4DD....D...D4.
+..D4....4D......
+................`],
   [ bullet, bitmap`
 ................
 ................
@@ -84,7 +84,7 @@ D4DD....D....DDD
 ................` ]
 );
 
-setSolids([player, covid, refill])
+setSolids([player])
 
 let level = 0
 const levels = [
@@ -111,9 +111,70 @@ function SpawnBullet() {
 }
 
 function SpawnCovid() {
-  let x = 8;
-  let y = Math.floor(Math.random() * 5) + 1;
-  addSprite(x, y, covid);
+  let x = 7;
+  let y = Math.floor(Math.random() * 5);
+  let spawn = Math.floor(Math.random() * 5);
+  if (spawn == 1) {
+    addSprite(x, y, covid);
+  }
+}
+
+function RemoveCovid() {
+  let covids = getAll(covid);
+  for (let i = 0; i < covids.length; i++){
+    if (covids[i].x == 0) {
+      covids[i].remove();
+      }
+  }
+}
+
+function RemoveBullet() {
+  let bullets = getAll(bullet);
+  for (let i = 0; i < bullets.length; i++){
+    if (bullets[i].x == 7) {
+      bullets[i].remove();
+      }
+  }
+}
+
+function KillCovid() {
+  let bullets = getAll(bullet);
+  let covids = getAll(covid);
+  for (let i = 0; i < bullets.length; i++){
+    for (let j = 0; j < covids.length; j++){
+      if (bullets[i].x == covids[j].x && bullets[i].y == covids[j].y){
+        bullets[i].remove() 
+        covids[j].remove()
+      }
+      
+    }
+    
+  }
+}
+
+function MoveBullets() {
+  let bullets = getAll(bullet);
+  for (let i = 0; i < bullets.length; i++){
+    bullets[i].x += 1;
+  }
+}
+
+function MoveCovids() {
+  let covids = getAll(covid);
+  for (let i = 0; i < covids.length; i++){
+    covids[i].x -= 1;
+  }
+}
+
+function Infected() {
+  let covids = getAll(covid);
+  let playerSprite = getFirst(player);
+  
+  for (let i = 0; i < covids.length; i++){
+    if (playerSprite.x === covids[i].x && playerSprite.y === covids[i].y){
+      gameRunning = false;
+    }
+  }
 }
 
 onInput("s", () => {
@@ -128,30 +189,30 @@ onInput("i", () => {
   SpawnBullet()
 })
 
-function MoveBullets() {
-  let bullets = getAll(bullet);
-  for (let i = 0; i < bullets.length; i++){
-    bullets[i].x += 1;
-  }
-}
-
 afterInput(() => {
   
 })
 
 var gameLoop = setInterval(() => {
   // Step 4 - Add all game functions
+  Infected()
+  SpawnCovid()
+  RemoveCovid()
+  RemoveBullet()
+  KillCovid()
+  MoveCovids()
   MoveBullets()
-  // if (checkHit()) {
-  //   clearInterval(gameLoop);
-  //   gameRunning = false;
-  //   addText("Game Over!", {
-  //     x: 5,
-  //     y: 6,
-  //     color: color`3`
-  //   });
-  // }
 
-}, 100);
+  if (gameRunning == false) {
+    clearInterval(gameLoop);
+    gameRunning = false;
+    addText("Game Over!", {
+      x: 5,
+      y: 6,
+      color: color`3`
+    });
+  }
+
+}, 500);
 
 
