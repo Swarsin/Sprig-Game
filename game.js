@@ -1,17 +1,11 @@
 /*
-First time? Check out the tutorial game:
-https://sprig.hackclub.com/gallery/getting_started
-
 @title: Fight against COVID
 @author: Swaraj Singh
-@tags: []
-@addedOn: 2024-00-00
 */
 
 const player = "p";
 const covid = "c";
 const bullet = "b";
-const refill = "r";
 
 setLegend(
   [ player, bitmap`
@@ -64,24 +58,7 @@ D4...DDDD.DD4...
 ................
 ................
 ................
-................`],
-  [ refill,bitmap`
-................
-...7777777777...
-...7666666667...
-...7666666667...
-...7666666667...
-...7666666667...
-...7666676667...
-...7677777667...
-...7673343767...
-...7677777667...
-...7666676667...
-...7666666667...
-...7666666667...
-...7666666667...
-...7777777777...
-................` ]
+................`]
 );
 
 setSolids([player])
@@ -99,10 +76,11 @@ p.......`
 setMap(levels[level])
 
 setPushables({
-  [ player ]: []
+  [player]: []
 })
 
 var gameRunning = true;
+var score = 0;
 
 function SpawnBullet() {
   let x = 0;
@@ -113,7 +91,7 @@ function SpawnBullet() {
 function SpawnCovid() {
   let x = 7;
   let y = Math.floor(Math.random() * 5);
-  let spawn = Math.floor(Math.random() * 5);
+  let spawn = Math.floor(Math.random() * 4);
   if (spawn == 1) {
     addSprite(x, y, covid);
   }
@@ -143,8 +121,8 @@ function KillCovid() {
   for (let i = 0; i < bullets.length; i++){
     for (let j = 0; j < covids.length; j++){
       if (bullets[i].x == covids[j].x && bullets[i].y == covids[j].y){
-        bullets[i].remove() 
-        covids[j].remove()
+        clearTile(bullets[i].x, bullets[i].y);
+        score += 1;
       }
       
     }
@@ -177,6 +155,9 @@ function Infected() {
   }
 }
 
+function updateScore() {
+  
+}
 onInput("s", () => {
   getFirst(player).y += 1
 })
@@ -200,6 +181,12 @@ var gameLoop = setInterval(() => {
   RemoveCovid()
   RemoveBullet()
   KillCovid()
+  clearText()
+  addText("Score: " + score,{
+    x: 1,
+    y: 2,
+    color: color`0`
+  } )
   MoveCovids()
   MoveBullets()
 
@@ -213,6 +200,6 @@ var gameLoop = setInterval(() => {
     });
   }
 
-}, 500);
+}, 300);
 
 
